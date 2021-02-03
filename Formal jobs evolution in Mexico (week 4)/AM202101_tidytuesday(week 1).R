@@ -9,7 +9,7 @@ cls()
 #/************************************************************************************************************************************************
 # Filename: AM202101_tidytuesday(week 1)
 # Author: Azael Mateo
-# Date: Martes 26 de Enero, 2021
+# Date: 26/January 2021
 #
 # Purpose: This file generates the script to build a vis on the variation of formal jobs in each federal entity with respect to February 2020.
 #
