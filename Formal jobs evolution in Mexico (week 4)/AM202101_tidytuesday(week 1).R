@@ -1,22 +1,21 @@
 
 rm(list = ls())
 cls <- function() cat(rep("\n",100))
-setwd("E:/Azael Personal/Documentos/R/tidytuesday")
-data <- "E:/Azael Personal/Documentos/Otros/Mercado Laboral/IMSS.xlsx"
+wd <- "E:/Azael Personal/Documentos/R/tidytuesday"
+setwd(wd)
 cls()
 
 
 #/************************************************************************************************************************************************
-# Nombre archivo: AM202101_tidytuesday(week 1)
-# Autor: Azael Mateo
-# Fecha: Martes 26 de Enero, 2021
-
-# Propósito: Éste archivo genera el código para completar las lecciones del curso "Analyzing Social Media Data in R" de Datacamp.
-
-# Archivos usados: -
-
-# Archivos creados: Se crea i) un script con los comandos usados en esta lección.
-# i) C:/Users/dell/Documents/Cursos y diplomados/edX/Data Science/Data Visualization with R
+# Filename: AM202101_tidytuesday(week 1)
+# Author: Azael Mateo
+# Date: Martes 26 de Enero, 2021
+#
+# Purpose: This file generates the script to build a vis on the variation of formal jobs in each federal entity with respect to February 2020.
+#
+# Used files: -
+#
+# Created files: -
 #**************************************************************************************************************************************************/
 
 library(tidyverse)
@@ -24,36 +23,36 @@ library(lubridate)
 library(geofacet)
 
 
-#Cargamos datos
+# Import data
 data <- read_csv('https://github.com/AzaelMateo/tidytuesday/raw/master/Formal%20jobs%20evolution%20in%20Mexico%20(week%204)/data.csv',
                   col_names = TRUE)
 
-#Creamos una variable date
+# Date variable
 data$PERIODO <- data$PERIODO %>%
   fast_strptime("%Y/%b") %>%  
   as.Date()
 
-#Generamos sub-base con la informacón de los estados
+# Build sub-data
 dt_estados <- data %>%
   gather(ESTADO, SUBNACIONAL, -PERIODO)
 
-#Hacemos coincidir con facet_geo
+# facet_geo
 dt_estados <- 
   dt_estados %>% 
   mutate(name = str_to_title(ESTADO),
-         name = if_else(name == "Cdmx", "Ciudad de México", name))
+         name = if_else(name == "Cdmx", "Ciudad de MÃ©xico", name))
 
-#Construimos vis 
+# Dataviz 
 dt_estados %>% ggplot() +
   geom_area(aes(PERIODO, SUBNACIONAL/100, group = ESTADO), fill = "#008080") +
   geom_line(aes(PERIODO, NACIONAL/100), data = data, size = 0.3, col = "#A9A8AC", alpha = 0.5) +
   geom_hline(yintercept = 0, color = "#E8EADC", linetype = 1) +
   scale_x_date(breaks = as.Date(c("2020-02-01", "2020-11-15")), labels = c("Feb", "Dic 20"), position = "bottom") +
   scale_y_continuous(n.breaks = 5, labels = scales::percent_format(accuracy = 1)) +
-  labs(title = "Evolución del empleo registrado ante el IMSS durante 2020",
-       subtitle = "Variación porcentual respecto a Febrero",
+  labs(title = "EvoluciÃ³n del empleo registrado ante el IMSS durante 2020",
+       subtitle = "VariaciÃ³n porcentual respecto a Febrero",
        x = "", y = element_blank(),
-       caption = "Fuente: Datos de IMSS Cubos de información\nElaborado por Azael Mateo (@xzxxlmxtxx)") +
+       caption = "Fuente: Datos de IMSS Cubos de informaciÃ³n\nElaborado por Azael Mateo (@xzxxlmxtxx)") +
   theme_tufte() +
   theme(
        plot.background = element_rect(fill = "#1E1D23"),
@@ -68,4 +67,5 @@ dt_estados %>% ggplot() +
        plot.margin = margin(60, 30, 30, 30)) +
   facet_geo(~ name, grid = 'mx_state_grid3') 
 
+# Export vis
 ggsave("AM202011_mx_state_grid.png", height = 12, width = 15, units = "in", type = "cairo")
