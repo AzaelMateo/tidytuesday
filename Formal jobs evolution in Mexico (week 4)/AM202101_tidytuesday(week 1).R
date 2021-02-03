@@ -12,6 +12,7 @@ cls()
 # Date: 26/January 2021
 #
 # Purpose: This file generates the script to build a vis on the variation of formal jobs in each federal entity with respect to February 2020.
+# Data source: Instituo Mexicano del Seguro Social (IMSS) 2020. Cubo de datos. 
 #
 # Used files: -
 #
