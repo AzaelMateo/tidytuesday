@@ -7,7 +7,7 @@ cls()
 
 
 #/************************************************************************************************************************************************
-# Filename: AM202101_tidytuesday(week 1)
+# Filename: AM202101_tidytuesday(week 4)
 # Author: Azael Mateo
 # Date: 26/January 2021
 #
@@ -47,7 +47,7 @@ dt_estados %>% ggplot() +
   geom_area(aes(PERIODO, SUBNACIONAL/100, group = ESTADO), fill = "#008080") +
   geom_line(aes(PERIODO, NACIONAL/100), data = data, size = 0.3, col = "#A9A8AC", alpha = 0.5) +
   geom_hline(yintercept = 0, color = "#E8EADC", linetype = 1) +
-  scale_x_date(breaks = as.Date(c("2020-02-01", "2020-11-15")), labels = c("Feb", "Dic 20"), position = "bottom") +
+  scale_x_date(breaks = as.Date(c("2020-02-20", "2020-11-10")), labels = c("Feb", "Dic 20"), position = "bottom") +
   scale_y_continuous(n.breaks = 5, labels = scales::percent_format(accuracy = 1)) +
   labs(title = "Evolución del empleo registrado ante el IMSS durante 2020",
        subtitle = "Variación porcentual respecto a Febrero",
