@@ -12,7 +12,7 @@ cls()
 # Date: 26/January 2021
 #
 # Purpose: This file generates the script to build a vis of the percentage of users who use the internet by age and state in Mexico.
-# Data source: Encuesta Nacional sobre Disponibilidad y Uso de TecnologÌas de la InformaciÛn en los Hogares (ENDUTIH) 2018, INEGI.
+# Data source: Encuesta Nacional sobre Disponibilidad y Uso de Tecnolog√≠as de la Informaci√≥n en los Hogares (ENDUTIH) 2018, INEGI.
 #
 # Created files: -
 #**************************************************************************************************************************************************/
@@ -53,7 +53,7 @@ sub1 <- usuario_anual %>%
 
 state_labels <- read_csv("https://github.com/AzaelMateo/tidytuesday/raw/master/Internet%20users%20in%20Mexico/AGEEML.csv",
                          col_names = TRUE) %>% 
-  transmute(state = as.factor(`Clave De AGEE`), names = `Nombre De AGEE`)
+  transmute(state = as.factor(`Clave De AGEE`), names = `Nombre Abreviado De AGEE`)
 
 sub1 <- left_join(sub1, state_labels, by = c("state" = "state")) 
 
@@ -75,8 +75,8 @@ prime <- sub1 %>%
   labs(x = NULL, 
        y = NULL,
        title = "Usuarios de internet por edad y entidad federativa",
-       subtitle = str_wrap("El gr·fico superior muestra el porcentaje promedio de usuarios por edad que utilizan internet MÈxico: a los 17 aÒos el 92% de los usuarios acceden a internet, 
-       a partir de entonces el porcentaje comienza a reducirse. A los 60 aÒos, el 35% de los usuarios utiliza el internet. El gr·fico inferior ilustra el uso de internet por edad y entidad federativa en MÈxico.", 100)) +
+       subtitle = str_wrap("El gr√°fico superior muestra el porcentaje promedio de usuarios por edad que utilizan internet M√©xico: a los 17 a√±os el 92% de los usuarios acceden a internet, 
+       a partir de entonces el porcentaje comienza a reducirse. A los 60 a√±os, el 35% de los usuarios utiliza el internet. El gr√°fico inferior ilustra el uso de internet por edad y entidad federativa en M√©xico.", 100)) +
   theme_tufte() +
   theme(axis.text.x = element_blank(),
         axis.text.y = element_blank(),
