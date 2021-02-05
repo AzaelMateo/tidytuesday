@@ -7,12 +7,12 @@ cls()
 
 
 #/************************************************************************************************************************************************
-# Filename: AM202101_tidytuesday(week 1)
+# Filename: AM202102_tidytuesday(week 5)
 # Author: Azael Mateo
-# Date: 26/January 2021
+# Date: 04/February 2021
 #
 # Purpose: This file generates the script to build a vis of the percentage of users who use the internet by age and state in Mexico.
-# Data source: Encuesta Nacional sobre Disponibilidad y Uso de Tecnologías de la Información en los Hogares (ENDUTIH) 2018, INEGI.
+# Data source: Encuesta Nacional sobre Disponibilidad y Uso de TecnologÃ­as de la InformaciÃ³n en los Hogares (ENDUTIH) 2018, INEGI.
 #
 # Created files: -
 #**************************************************************************************************************************************************/
@@ -75,8 +75,8 @@ prime <- sub1 %>%
   labs(x = NULL, 
        y = NULL,
        title = "Uso de internet por edad y entidad federativa",
-       subtitle = str_wrap("El gráfico superior muestra el porcentaje promedio de usuarios que utilizan internet por edad en México: a los 17 años el 92% de los usuarios acceden a internet, 
-       a partir de entonces el porcentaje comienza a reducirse. A los 60 años, solo es el 35%. El gráfico inferior ilustra el porcentaje por edad y entidad federativa.", 120)) +
+       subtitle = str_wrap("El grÃ¡fico superior muestra el porcentaje promedio de usuarios que utilizan internet por edad en MÃ©xico: a los 17 aÃ±os el 92% de los usuarios acceden a internet, 
+       a partir de entonces el porcentaje comienza a reducirse. A los 60 aÃ±os, solo es el 35%. El grÃ¡fico inferior ilustra el porcentaje por edad y entidad federativa.", 120)) +
   theme_tufte() +
   theme(axis.text.x = element_blank(),
         axis.text.y = element_blank(),
