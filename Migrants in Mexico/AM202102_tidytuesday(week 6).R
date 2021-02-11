@@ -12,7 +12,7 @@ cls()
 # Date: 09/February 2021
 #
 # Purpose: This file generates the script to build a vis of the main causes of migration in Mexico.
-# Data source: Censo de Población y Vivienda 2020, INEGI.
+# Data source: Censo de PoblaciÃ³n y Vivienda 2020, INEGI.
 #
 # Created files: -
 #**************************************************************************************************************************************************/
@@ -35,10 +35,8 @@ data <- data %>%
   data.frame(causa = row.names(data), tot = .) %>% 
   mutate(n = -3:4) %>% 
   rowwise() %>%
-  mutate(
-    x = list(c(-300, 0, 0, -300)),
-    y = list(c(n*4 - 1.4, n*2 - 0.7, n*2 + 0.7, n*4 + 1.4))
-  ) %>% 
+  mutate(x = list(c(-300, 0, 0, -300)),
+         y = list(c(n*4 - 1.4, n*2 - 0.7, n*2 + 0.7, n*4 + 1.4))) %>% 
   unnest(cols = c(x, y)) 
 
 
@@ -55,8 +53,8 @@ ggplot(data) +
   geom_text(aes(-1190, n*4, label = causa), family = "JetBrains Mono Bold", color = "white", hjust = 0, size = 12, check_overlap = TRUE) +
   geom_text(aes(tot/1000+5, n*2, label = format(tot, big.mark=",", small.interval=3)), family = "JetBrains Mono Medium", color = "#46555C", hjust = 0, size = 10, check_overlap = TRUE) +
   # legends
-  annotate("text", 2700, 16, label = "Principales causas de la migración en México", family = "IBM Plex Sans Bold", color = "black", hjust = 1, size = 25) +
-  annotate("text", 2700, 14, label = "Incluye migración intraestatal, interestatal e internacional", family = "IBM Plex Sans Bold", color = "black", hjust = 1, size = 15) +
+  annotate("text", 2700, 16, label = "Principales causas de la migraciÃ³n en MÃ©xico", family = "IBM Plex Sans Bold", color = "black", hjust = 1, size = 25) +
+  annotate("text", 2700, 14, label = "Incluye migraciÃ³n intraestatal, interestatal e internacional", family = "IBM Plex Sans Bold", color = "black", hjust = 1, size = 15) +
   annotate("text", 2700, 10, label = "Fuente: Censos 2020, INEGI\nElaborado por Azael Mateo (@xzxxlmxtxx)", family = "IBM Plex Sans Bold", color = "black", hjust = 1, size = 10, lineheight = 0.3) +
   scale_x_continuous(limits = c(-1200, 2700), labels = NULL) +
   theme_minimal(base_family = "JetBrains Mono Medium") +
