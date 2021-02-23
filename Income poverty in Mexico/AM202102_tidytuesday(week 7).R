@@ -31,7 +31,7 @@ data <- read_csv("https://github.com/AzaelMateo/tidytuesday/raw/master/Income%20
 data$ent <- factor(data$ent, levels = data$ent[order(data$`3t`)]) 
 
 data <- data %>% 
-  mutate(dif = ((`3t`-`4t`)*100/(`1t`-`3t`)))
+  mutate(dif = ((`3t`-`4t`)*-100/(`1t`-`3t`)))
 
 
 # Geom segment -----------------------------------------------------------------------------------------------------------------------------------
@@ -56,17 +56,17 @@ p1 <- data %>%
         plot.subtitle = element_text(size = 10.5),
         plot.caption = element_text(size = 9)) +
   labs(title = "Efectos de la pandemia sobre la pobreza laboral",
-       subtitle = str_wrap("Cada viñeta indica el porcentaje de la población de cada entidad federativa con un ingreso inferior al costo de la canasta alimentaria
-                          (pobreza laboral)  durante el 2020. La etiqueta de valor representa la profundización o reversión de la magnitud de los efectos de la pandemia (1T-3T)", 150),
+       subtitle = str_wrap("Cada viÃ±eta indica el porcentaje de la poblaciÃ³n de cada entidad federativa con un ingreso inferior al costo de la canasta alimentaria
+                          (pobreza laboral)  durante el 2020. La etiqueta de valor representa la profundizaciÃ³n o reversiÃ³n de la magnitud de los efectos de la pandemia (1T-3T)", 150),
        caption = "\nENOE y ENOE-N (2020), INEGI\r\nElaborado por Azael Mateo (@xzxxlmxtxx)",
-       y = "Porcentaje de la población con ingreso inferior al costo de la canasta alimentaria")
+       y = "Porcentaje de la poblaciÃ³n con ingreso inferior al costo de la canasta alimentaria")
 
 
 # Annotations -----------------------------------------------------------------------------------------------------------------------------------
 p2 <- p1 +  annotate("curve", x = "Hgo.", y = 0.79, xend = "Chis.", yend = 0.75,
                arrow = arrow(length = unit(0.2, "cm"), type = "closed"), color = "grey40") +
       annotate("text", x = "Ver.", y = 0.74,
-               label = str_wrap("Chiapas fue la entidad con mayor reversión de los efectos de la pandemia sobre la pobreza laboral con (-)170%. Al 4T se ubicó
+               label = str_wrap("Chiapas fue la entidad con mayor reversiÃ³n de los efectos de la pandemia sobre la pobreza laboral con (-)170%. Al 4T se ubicÃ³
                incluso en un menor nivel que en el 1T.", 30, indent = 0), size = 2, color = "grey40") +
       annotate("text", x = "Mex.", y = 0.58,
               label = str_wrap("El Edomex y la CDMX revirtieron los efectos en un (-)34% y (-)22% respectivamente.", 40), size = 2, color = "grey40", vjust = 0.8) +
@@ -74,11 +74,11 @@ p2 <- p1 +  annotate("curve", x = "Hgo.", y = 0.79, xend = "Chis.", yend = 0.75,
               arrow = arrow(length = unit(0.2, "cm"), type = "closed"), color = "grey40") +
       annotate("text", x = "Yuc.", y = 0.61,
                label = str_wrap("A nivel nacional, los efectos de la pandemia sobre la pobreza laboral que se presentaron del 1T al 3T se revirtieron en un (-)42.7%
-                                al pasar de tener al 45% de la población bajo esta condición en el 3T a tener el 41% para el 4T.", 40), size = 2, color = "grey40") +
+                                al pasar de tener al 45% de la poblaciÃ³n bajo esta condiciÃ³n en el 3T a tener el 41% para el 4T.", 40), size = 2, color = "grey40") +
       annotate("curve", x = "Coah.", y = 0.44, xend = "Dgo.", yend = 0.40, curvature = .4,
               arrow = arrow(length = unit(0.2, "cm"), type = "closed"), color = "grey40") +
       annotate("text", x = "Coah.", y = 0.50,
-              label = str_wrap("Durango profundizó en un 139% los efectos de la pandemia.", 30), size = 2, color = "grey40") 
+              label = str_wrap("Durango profundizÃ³ en un 139% los efectos de la pandemia.", 30), size = 2, color = "grey40") 
 
   
 # Bullets --------------------------------------------------------------------------------------------------------------------------------------
