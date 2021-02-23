@@ -41,8 +41,8 @@ p1 <- data %>%
   geom_point(aes(y = `1t`, x = ent), size = 3, shape = 17, color = "#CFC5C0", alpha = 0.8) +
   geom_point(aes(y = `3t`, x = ent), size = 3, color = "#A39FA8", alpha = 1) +
   geom_point(aes(y = `4t`, x = ent), size = 3, color = "#7580A1", alpha = 1) +
-  geom_text(data = subset(data, dif > 0), aes(label = paste(round(dif*-1, 1), "%", sep = "")), color = "#2F3336", size = 2.5, hjust = 1.8, vjust = 0.4) +
-  geom_text(data = subset(data, dif < 0), aes(label = paste(round(dif*-1, 1), "%", sep = "")), color = "#2F3336", size = 2.5, hjust = -0.5, vjust = 0.4) +
+  geom_text(data = subset(data, dif < 0), aes(label = paste(round(dif*-1, 1), "%", sep = "")), color = "#2F3336", size = 2.5, hjust = 1.8, vjust = 0.4) +
+  geom_text(data = subset(data, dif > 0), aes(label = paste(round(dif*-1, 1), "%", sep = "")), color = "#2F3336", size = 2.5, hjust = -0.5, vjust = 0.4) +
   scale_y_continuous("", expand = c(0,0), limits = c(.1, .83), breaks = seq(.1,.8,.1), labels = scales::percent_format()) +
   coord_flip() +
   theme_tufte() +
