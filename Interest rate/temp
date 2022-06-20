@@ -1,4 +1,4 @@
-
+rm(list = ls())
 library(tidyverse)
 
 # Sub-set ----------------------------------------------------------------------------------------------------------------------------------------
@@ -21,7 +21,7 @@ temp <- data.frame(matrix(rbind(rnorm(mean=0.3, sd=.2, n=5),
                           ncol = 5,
                           dimnames = list(NULL,
                                           c("BBVA", "SANTANDER", "HSBC", "BANAMEX", "BANORTE"))
-                          )
+)
 )
 
 periodo_consulta = rep(c("sep.-21", "dic.21", "mar.-22", "jun.-22"), 4)
@@ -48,9 +48,16 @@ data <- data %>%
 graph <- data %>%
   ggplot() +
   geom_linerange(aes(x = periodo_proyección, ymin = min, ymax = max, colour = periodo_consulta),
-                 position = position_dodge(width = 0.8), size = 6) +
-  geom_text(aes(x = periodo_proyección, y = mean, label = round(mean, 2), group = periodo_consulta),
-             position = position_dodge(width = 0.8), size = 3, angle = 90)
+                 position = position_dodge(width = 0.8), size = 10) +
+  geom_linerange(aes(x = periodo_proyección, ymin = min+0.05, ymax = max-0.05, group = periodo_consulta),
+                 position = position_dodge(width = 0.8), size = 6, color = "white") +
+  geom_point(aes(x = periodo_proyección, y = mean, colour = periodo_consulta),
+                 position = position_dodge(width = 0.8), size = 5, shape = 18) +
+  geom_text(aes(x = periodo_proyección, y = mean, label = round(mean, 1), group = periodo_consulta),
+            position = position_dodge(width = 0.8), size = 3, angle = 90, hjust = -0.3) +
+  theme(legend.position = c(0.8, 0.2))
 
 graph
 
+# Export vis ------------------------------------------------------------------------------------------------------------------------------------
+ggsave("D:/Users/MAMA95C3/Documents/R/Descargas/temp.png", width = 8, height = 9)
