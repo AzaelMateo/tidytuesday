@@ -2,22 +2,22 @@ rm(list = ls())
 library(tidyverse)
 
 # Sub-set ----------------------------------------------------------------------------------------------------------------------------------------
-temp <- data.frame(matrix(rbind(rnorm(mean=0.3, sd=.2, n=5),
+temp <- data.frame(matrix(rbind(rnorm(mean=0.3, sd=.3, n=5),
                                 rnorm(mean=0.9, sd=.4, n=5),
-                                rnorm(mean=1.9, sd=.9, n=5),
-                                rnorm(mean=3.4, sd=.3, n=5),
-                                rnorm(mean=1.0, sd=.5, n=5),
-                                rnorm(mean=1.6, sd=.4, n=5),
+                                rnorm(mean=1.9, sd=1, n=5),
+                                rnorm(mean=3.4, sd=.5, n=5),
+                                rnorm(mean=1, sd=.5, n=5),
+                                rnorm(mean=1.6, sd=.6, n=5),
                                 rnorm(mean=2.8, sd=.8, n=5),
-                                rnorm(mean=3.8, sd=.6, n=5),
-                                rnorm(mean=1.8, sd=.5, n=5),
-                                rnorm(mean=2.1, sd=.2, n=5),
-                                rnorm(mean=2.8, sd=.3, n=5),
-                                rnorm(mean=3.4, sd=.4, n=5),
-                                rnorm(mean=2.5, sd=.2, n=5),
-                                rnorm(mean=2.5, sd=.2, n=5),
-                                rnorm(mean=2.4, sd=.2, n=5),
-                                rnorm(mean=2.5, sd=.2, n=5)),
+                                rnorm(mean=3.8, sd=.8, n=5),
+                                rnorm(mean=1.8, sd=.6, n=5),
+                                rnorm(mean=2.1, sd=.6, n=5),
+                                rnorm(mean=2.8, sd=.5, n=5),
+                                rnorm(mean=3.4, sd=.7, n=5),
+                                rnorm(mean=2.5, sd=.5, n=5),
+                                rnorm(mean=2.5, sd=.5, n=5),
+                                rnorm(mean=2.4, sd=.5, n=5),
+                                rnorm(mean=2.5, sd=.5, n=5)),
                           ncol = 5,
                           dimnames = list(NULL,
                                           c("BBVA", "SANTANDER", "HSBC", "BANAMEX", "BANORTE"))
@@ -48,14 +48,28 @@ data <- data %>%
 graph <- data %>%
   ggplot() +
   geom_linerange(aes(x = periodo_proyección, ymin = min, ymax = max, colour = periodo_consulta),
-                 position = position_dodge(width = 0.8), size = 10) +
-  geom_linerange(aes(x = periodo_proyección, ymin = min+0.05, ymax = max-0.05, group = periodo_consulta),
-                 position = position_dodge(width = 0.8), size = 6, color = "white") +
+                 position = position_dodge(width = 0.8), size = 12) +
+  geom_linerange(aes(x = periodo_proyección, ymin = min+0.03, ymax = max-0.03, group = periodo_consulta),
+                 position = position_dodge(width = 0.8), size = 10, color = "white") +
   geom_point(aes(x = periodo_proyección, y = mean, colour = periodo_consulta),
-                 position = position_dodge(width = 0.8), size = 5, shape = 18) +
+             position = position_dodge(width = 0.8), size = 9, shape = 18) +
   geom_text(aes(x = periodo_proyección, y = mean, label = round(mean, 1), group = periodo_consulta),
-            position = position_dodge(width = 0.8), size = 3, angle = 90, hjust = -0.3) +
-  theme(legend.position = c(0.8, 0.2))
+            position = position_dodge(width = 0.8), size = 6, angle = 90, hjust = -0.5) +
+  labs(title = "Proyecciones del FOMC de la Tasa de Referencia",
+       subtitle = "Porcentaje",
+       x = element_blank(), y = element_blank(),
+       caption = "Fuente: FOMC") +
+  theme(legend.position = c(0.8, 0.2),
+        legend.title = element_blank(),
+        legend.key.size = unit(0.1, 'cm'),
+        legend.text = element_text(size = 20),
+        panel.background = element_blank(),
+        axis.line = element_line(color = "black", size = 1),
+        axis.ticks = element_line(color = "black", size = 2),
+        axis.text = element_text(size = 20),
+        plot.title = element_text(size = 23, face = "bold"),
+        plot.subtitle = element_text(size = 20),
+        plot.caption = element_text(size = 15, hjust = 0, vjust = 2))
 
 graph
 
