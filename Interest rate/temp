@@ -46,9 +46,11 @@ data <- data %>%
 
 # Geom graph -----------------------------------------------------------------------------------------------------------------------------------
 graph <- data %>%
-  ggplot(aes(x = periodo_proyección, ymin = min, ymax = max, colour = periodo_consulta)) +
-  geom_linerange(position = position_dodge(width = 0.8), size = 6) +
-  geom_text(aes(y = mean, group = periodo_consulta), label = mean)
+  ggplot() +
+  geom_linerange(aes(x = periodo_proyección, ymin = min, ymax = max, colour = periodo_consulta),
+                 position = position_dodge(width = 0.8), size = 6) +
+  geom_text(aes(x = periodo_proyección, y = mean, label = round(mean, 2), group = periodo_consulta),
+             position = position_dodge(width = 0.8), size = 3, angle = 90)
 
 graph
 
