@@ -1,25 +1,54 @@
+
 library(tidyverse)
 
-periodo_consulta <- c(rep("2022", 4), rep("2023", 4), rep("2024", 4), rep("Largo Plazo", 4))
-periodo_proyección <- rep(c("sep.-21", "dic.21", "mar.-22", "jun.-22"), 4)
-institución <- c("BBVA", "Santander", "Banorte", "HSBC", "Banamex")
-t1 <- rnorm(mean=0.3, sd=.2, n=5)
-t2 <- rnorm(mean=0.9, sd=.3, n=5)
-t3 <- rnorm(mean=1.9, sd=.6, n=5)
-t4 <- rnorm(mean=3.4, sd=.3, n=5)
-t5 <- rnorm(mean=1.0, sd=.5, n=5)
-t6 <- rnorm(mean=1.6, sd=.3, n=5)
-t7 <- rnorm(mean=2.8, sd=.2, n=5)
-t8 <- rnorm(mean=3.8, sd=.2, n=5)
-t9 <- rnorm(mean=1.8, sd=.5, n=5)
-t10 <- rnorm(mean=2.1, sd=.2, n=5)
-t11 <- rnorm(mean=2.8, sd=.3, n=5)
-t12 <- rnorm(mean=3.4, sd=.4, n=5)
-t13 <- rnorm(mean=2.5, sd=.2, n=5)
-t14 <- rnorm(mean=2.5, sd=.2, n=5)
-t15 <- rnorm(mean=2.4, sd=.2, n=5)
-t16 <- rnorm(mean=2.5, sd=.2, n=5)
+# Sub-set ----------------------------------------------------------------------------------------------------------------------------------------
+temp <- data.frame(matrix(rbind(rnorm(mean=0.3, sd=.2, n=5),
+                                rnorm(mean=0.9, sd=.4, n=5),
+                                rnorm(mean=1.9, sd=.9, n=5),
+                                rnorm(mean=3.4, sd=.3, n=5),
+                                rnorm(mean=1.0, sd=.5, n=5),
+                                rnorm(mean=1.6, sd=.4, n=5),
+                                rnorm(mean=2.8, sd=.8, n=5),
+                                rnorm(mean=3.8, sd=.6, n=5),
+                                rnorm(mean=1.8, sd=.5, n=5),
+                                rnorm(mean=2.1, sd=.2, n=5),
+                                rnorm(mean=2.8, sd=.3, n=5),
+                                rnorm(mean=3.4, sd=.4, n=5),
+                                rnorm(mean=2.5, sd=.2, n=5),
+                                rnorm(mean=2.5, sd=.2, n=5),
+                                rnorm(mean=2.4, sd=.2, n=5),
+                                rnorm(mean=2.5, sd=.2, n=5)),
+                          ncol = 5,
+                          dimnames = list(NULL,
+                                          c("BBVA", "SANTANDER", "HSBC", "BANAMEX", "BANORTE"))
+                          )
+)
 
-tasa_referencia <- rbind(institución, t1:t16)
+periodo_consulta = rep(c("sep.-21", "dic.21", "mar.-22", "jun.-22"), 4)
+periodo_proyección = c(rep("2022", 4), rep("2023", 4), rep("2024", 4), rep("Largo Plazo", 4))
 
-tibble(periodo_consulta = x, periodo_proyección = y, tasa_referencia = rbind(t1,t2,t3,t4))
+data <- cbind(periodo_consulta, periodo_proyección, temp)
+
+data$periodo_proyección <- factor(data$periodo_proyección, levels = c("2022", "2023", "2024", "Largo Plazo"))
+data$periodo_consulta <- factor(data$periodo_consulta, levels = c("sep.-21", "dic.21", "mar.-22", "jun.-22"))
+
+
+temp <- data %>%
+  select(3:7) %>% 
+  transmute(min = apply(temp, 1, FUN=min),
+            max = apply(temp, 1, FUN=max),
+            mean = apply(temp, 1, FUN=mean))
+
+data <- data %>% 
+  select(periodo_consulta, periodo_proyección) %>% 
+  cbind(temp)
+
+
+# Geom graph -----------------------------------------------------------------------------------------------------------------------------------
+graph <- data %>%
+  ggplot(aes(x = periodo_proyección, ymin = min, ymax = max, colour = periodo_consulta)) +
+  geom_linerange(position = position_dodge(width = 0.8), size = 6) +
+  geom_text(aes(y = mean, group = periodo_consulta), label = mean)
+
+graph
+
