@@ -1,4 +1,4 @@
-setwd("C:/Users/DELL/Documents/R/tidytuesday")
+setwd("E:/TidyTuesday/IED")
 rm(list = ls())
 
 library(tidyverse)
@@ -12,32 +12,40 @@ library(mapproj)
 library(scales)
 library(ggmap)
 
-mov_geo <- read_csv("ied.csv")  %>%
-  select(origen, o_latitude, o_longitude, destino, d_latitude, d_longitude, total) %>% 
+full_data <- read_csv("ied.csv", locale(encoding = "ISO-8859-1"), col_names = TRUE, col_types = NULL)  %>%
+  select(origen, destino, total, o_latitude, o_longitude, d_latitude, d_longitude) %>% 
+  filter(total > 0)
+
+links <- read_csv("ied.csv", locale(encoding = "ISO-8859-1"), col_names = TRUE, col_types = NULL)  %>%
+  select(origen, destino, total, o_latitude, o_longitude, d_latitude, d_longitude) %>% 
   filter(total > 0) %>% 
-  filter(o_latitude != 0)
-
-immigr <- mov_geo %>% 
-  select(x = d_longitude, y = d_latitude, n = total) %>% 
-  distinct(x, .keep_all = TRUE)
-
-relations <- mov_geo %>% 
   mutate(
     from = origen,
-    to = destino
-  ) %>% 
-  select(from, to)
+    to = destino,
+    n = total
+    ) %>%
+  select(from, to, n)
+  
+nodes <- read_csv("nodes.csv", locale = locale(encoding = "ISO-8859-1"), col_names = TRUE, col_types = NULL)
 
-ig <- graph_from_data_frame(relations, directed = TRUE, vertices = mov_geo)
+flows <- read_csv("ied.csv", locale(encoding = "ISO-8859-1"), col_names = TRUE, col_types = NULL)  %>%
+  select(origen, destino, total, o_latitude, o_longitude, d_latitude, d_longitude) %>% 
+  filter(total > 0) %>% 
+  select(x = o_longitude, y = o_latitude, n = total)
 
-xy <- cbind(V(ig)$long, V(ig)$lat)
+nrow(nodes): length(unique(nodes$local))
+nrow(links): nrow(unique(links[,c("from", "to")]))
 
-verts <- data.frame(x = V(ig)$long, y = V(ig)$lat) %>% 
-  left_join(immigr)
+ig <- graph_from_data_frame(links, directed = TRUE, vertices = nodes)
 
-fbundle <- edge_bundle_force(ig, xy, compatibility_threshold = 0.8) %>% 
-  filter(group != 191) %>% 
-  left_join(immigr) %>% 
+xy <- cbind(V(ig)$longitude, V(ig)$latitude)
+
+verts <- data.frame(x = V(ig)$longitude, y = V(ig)$latitude) %>% 
+  left_join(flows)
+
+fbundle <- edge_bundle_force(ig, xy, compatibility_threshold = 0.7) %>% 
+  # filter(group != 191) %>% 
+  left_join(flows) %>% 
   group_by(group) %>% 
   fill(n) %>% 
   ungroup()
@@ -48,19 +56,18 @@ f1 <- "Outfit"
 
 vis <- ggplot() +
   geom_polygon(data = world, aes(long, lat, group = group), fill = "grey90") +
-  annotate("text", x = 16, y = 62, label = "SWEDEN", size = 5, family = f1, fontface = "bold") +
-  geom_path(data = fbundle %>% filter(n < 1000), aes(x, y, group = group, linewidth = n), alpha = 0.2) +
-  geom_path(data = fbundle %>% filter(n >= 1000), aes(x, y, group = group, linewidth = n, color = n), alpha = 0.8) +
-  geom_point(data = verts, aes(x, y, color = ifelse(n > 1000, n, NA), size = n)) +
-  shadowtext::geom_shadowtext(data = mov_geo %>% filter(immigrations_2021 < 1000), aes(long, lat - 0.75, label = paste0(country_of_emi_immigration, "\n", immigrations_2021)), stat = "unique", check_overlap = TRUE, family = f1, vjust = 1, size = 2, color = "black", bg.color = "white", lineheight = 0.9) +
-  shadowtext::geom_shadowtext(data = mov_geo %>% filter(immigrations_2021 >= 1000), aes(long, lat - 0.75, label = paste0(country_of_emi_immigration, "\n", scales::number(immigrations_2021))), stat = "unique", check_overlap = TRUE, family = f1, vjust = 1, size = 4, color = "black", bg.color = "white", lineheight = 0.9) +
+  # annotate("text", x = 16, y = 62, label = "SWEDEN", size = 5, family = f1, fontface = "bold") +
+  geom_path(data = fbundle %>% filter(n < 5000), aes(x, y, group = group, linewidth = n), alpha = 0.1) +
+  geom_path(data = fbundle %>% filter(n >= 5000), aes(x, y, group = group, linewidth = n, color = n), alpha = 0.3) +
+  geom_point(data = verts, aes(x, y, color = ifelse(n > 5000, n, NA), size = n)) +
+  # shadowtext::geom_shadowtext(data = full_data %>% filter(total < 1000), aes(o_longitude, o_latitude - 0.75, label = paste0(origen, "\n", total)), stat = "unique", check_overlap = TRUE, family = f1, vjust = 1, size = 2, color = "black", bg.color = "white", lineheight = 0.9) +
+  shadowtext::geom_shadowtext(data = full_data %>% filter(total > 1000), aes(o_longitude, if_else(o_latitude > 20, o_latitude + 5, o_latitude - 1), label = paste0(origen, "\n", scales::number(total))), stat = "unique", check_overlap = TRUE, family = f1, vjust = 1, size = 2, color = "black", bg.color = "white", lineheight = 0.9) +
   scale_color_stepsn(colors = MetBrewer::met.brewer("Tam"), na.value = "grey70") +
-  scale_linewidth_continuous(range = c(0.2, 2)) +
+  # scale_linewidth_continuous(range = c(0.2, 2)) +
   scale_size_continuous(range = c(0.5, 4)) +
-  coord_map("azequalarea", orientation = c(lat = 60.13, long = 18.64, 0), xlim = c(-12, 40), ylim = c(30, 72)) +
   labs(
     title = "Inversión extranjera directa en México, 2020-2023",
-    subtitle = "Del resto del mundo y por entidad federativa. Los resaltados son flujos de más de $1,000,000",
+    subtitle = "Del resto del mundo y por entidad federativa. Miles de dolares, precios corrientes",
     caption = "Fuente: Secretaria de Economía, 2023 · Elaborado por: Azael Mateo"
   ) +
   theme_minimal(base_family = f1) +
@@ -69,8 +76,8 @@ vis <- ggplot() +
     plot.background = element_rect(fill = "grey97", color = NA),
     axis.title = element_blank(),
     axis.text = element_blank(),
-    plot.title = element_text(size = 18, face = "bold", margin = margin(10, 0, 7, 0)),
-    plot.subtitle = element_text(size = 12, margin = margin(0, 0, 10, 0))
+    plot.title = element_text(size = 20, face = "bold", margin = margin(10, 0, 7, 0)),
+    plot.subtitle = element_text(size = 14, margin = margin(0, 0, 10, 0))
   )
 
-ggsave("AM202303_flujos_inversión.png", vis, width = 12, height = 10)
+ggsave("AM202303_flujos_inversión.png", vis, width = 16, height = 10)
