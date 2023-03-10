@@ -12,34 +12,19 @@ library(mapproj)
 library(scales)
 library(ggmap)
 
-
-# gg_record(dir = "mappromptmonday-temp/", device = "png", width = 10, height = 10, units = "in", dpi = 320)
-
-# mov <- read_csv(here::here("2023/2023-week_05/data/000005TU_20230115-164302.csv")) %>%
-#   janitor::clean_names()
-
-# mov_geo <- mov %>% 
-#   # head() %>% 
-#   tidygeocoder::geocode(country = country_of_emi_immigration)
-# 
-# write_csv(mov_geo, here::here("2023/2023-week_05/data/move_geo.csv"))
-
-mov_geo <- read_csv("move_geo.csv")  %>% 
-  filter(immigrations_2021 > 0) %>% 
-  add_row(country_of_emi_immigration = "Sweden", lat = 60, long = 16) %>%
-  filter(!is.na(lat)) %>% 
-  filter(
-    between(long, -25.5, 37.5) & 
-      between(lat, 32, 72)
-  )
+mov_geo <- read_csv("ied.csv")  %>%
+  select(origen, o_latitude, o_longitude, destino, d_latitude, d_longitude, total) %>% 
+  filter(total > 0) %>% 
+  filter(o_latitude != 0)
 
 immigr <- mov_geo %>% 
-  select(x = long, y = lat, n = immigrations_2021)
+  select(x = d_longitude, y = d_latitude, n = total) %>% 
+  distinct(x, .keep_all = TRUE)
 
 relations <- mov_geo %>% 
   mutate(
-    from = country_of_emi_immigration,
-    to = "Sweden"
+    from = origen,
+    to = destino
   ) %>% 
   select(from, to)
 
