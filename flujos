@@ -1,3 +1,6 @@
+setwd("E:/Azael/Azael Personal/Documentos/R/tidytuesday/Nueva carpeta")
+rm(list = ls())
+
 library(tidyverse)
 library(camcorder)
 library(edgebundle)
@@ -5,10 +8,11 @@ library(igraph)
 library(maps)
 library(shadowtext)
 library(MetBrewer)
+library(mapproj)
+library(scales)
 
-setwd("E:/Azael/Azael Personal/Documentos/R/tidytuesday/Nueva carpeta")
 
-gg_record(dir = "mappromptmonday-temp/", device = "png", width = 10, height = 10, units = "in", dpi = 320)
+# gg_record(dir = "mappromptmonday-temp/", device = "png", width = 10, height = 10, units = "in", dpi = 320)
 
 # mov <- read_csv(here::here("2023/2023-week_05/data/000005TU_20230115-164302.csv")) %>%
 #   janitor::clean_names()
@@ -56,8 +60,16 @@ world <- map_data("world")
 
 f1 <- "Outfit"
 
+scale_linewidth_continuous <- function(name = waiver(), breaks = waiver(),
+                                       labels = waiver(), limits = NULL,
+                                       range = c(1, 6), trans = "identity",
+                                       guide = "legend") {
+  continuous_scale("linewidth", "linewidth_c", rescale_pal(range), name = name,
+                   breaks = breaks, labels = labels, limits = limits, trans = trans,
+                   guide = guide)
+}
 
-ggplot() +
+vis <- ggplot() +
   geom_polygon(data = world, aes(long, lat, group = group), fill = "grey90") +
   annotate("text", x = 16, y = 62, label = "SWEDEN", size = 5, family = f1, fontface = "bold") +
   geom_path(data = fbundle %>% filter(n < 1000), aes(x, y, group = group, linewidth = n), alpha = 0.2) +
@@ -70,9 +82,9 @@ ggplot() +
   scale_size_continuous(range = c(0.5, 4)) +
   coord_map("azequalarea", orientation = c(lat = 60.13, long = 18.64, 0), xlim = c(-12, 40), ylim = c(30, 72)) +
   labs(
-    title = "Immigration to Sweden, 2021",
-    subtitle = "From other European and selected countries. Highlighted are countries with more than 1 000 people",
-    caption = "Source: Statistics Sweden · Graphic: Georgios Karamanis"
+    title = "Inversión extranjera directa en México, 2020-2023",
+    subtitle = "Del resto del mundo y por entidad federativa. Los resaltados son flujos de más de $1,000,000",
+    caption = "Fuente: Secretaria de Economía, 2023 · Elaborado por: Azael Mateo"
   ) +
   theme_minimal(base_family = f1) +
   theme(
@@ -83,3 +95,5 @@ ggplot() +
     plot.title = element_text(size = 18, face = "bold", margin = margin(10, 0, 7, 0)),
     plot.subtitle = element_text(size = 12, margin = margin(0, 0, 10, 0))
   )
+
+ggsave("AM202303_flujos_inversión.png", vis, width = 12, height = 10)
