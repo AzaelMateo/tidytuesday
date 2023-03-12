@@ -1,51 +1,41 @@
-setwd("E:/TidyTuesday/IED")
+setwd("D:/TidyTuesday/IED")
 rm(list = ls())
 
 library(tidyverse)
-library(camcorder)
 library(edgebundle)
 library(igraph)
 library(maps)
 library(shadowtext)
 library(MetBrewer)
 library(mapproj)
-library(scales)
 library(ggmap)
+library(patchwork)
+library(gt)
+library(bstfun)
 
-full_data <- read_csv("ied.csv", locale(encoding = "ISO-8859-1"), col_names = TRUE, col_types = NULL)  %>%
-  select(origen, destino, total, o_latitude, o_longitude, d_latitude, d_longitude) %>% 
-  filter(total > 0)
-
-links <- read_csv("ied.csv", locale(encoding = "ISO-8859-1"), col_names = TRUE, col_types = NULL)  %>%
-  select(origen, destino, total, o_latitude, o_longitude, d_latitude, d_longitude) %>% 
+data <- read_csv("ied_origen.csv", locale = locale(encoding = "ISO-8859-1"))  %>% 
   filter(total > 0) %>% 
+  add_row(country = "México", latitude = 20, longitude = -101)
+
+ied <- data %>% 
+  select(x = longitude, y = latitude, n = total)
+
+relations <- data %>% 
   mutate(
-    from = origen,
-    to = destino,
-    n = total
-    ) %>%
-  select(from, to, n)
-  
-nodes <- read_csv("nodes.csv", locale = locale(encoding = "ISO-8859-1"), col_names = TRUE, col_types = NULL)
+    from = country,
+    to = "México"
+  ) %>% 
+  select(from, to)
 
-flows <- read_csv("ied.csv", locale(encoding = "ISO-8859-1"), col_names = TRUE, col_types = NULL)  %>%
-  select(origen, destino, total, o_latitude, o_longitude, d_latitude, d_longitude) %>% 
-  filter(total > 0) %>% 
-  select(x = o_longitude, y = o_latitude, n = total)
-
-nrow(nodes): length(unique(nodes$local))
-nrow(links): nrow(unique(links[,c("from", "to")]))
-
-ig <- graph_from_data_frame(links, directed = TRUE, vertices = nodes)
+ig <- graph_from_data_frame(relations, directed = TRUE, vertices = data)
 
 xy <- cbind(V(ig)$longitude, V(ig)$latitude)
 
 verts <- data.frame(x = V(ig)$longitude, y = V(ig)$latitude) %>% 
-  left_join(flows)
+  left_join(ied)
 
-fbundle <- edge_bundle_force(ig, xy, compatibility_threshold = 0.7) %>% 
-  # filter(group != 191) %>% 
-  left_join(flows) %>% 
+fbundle <- edge_bundle_force(ig, xy, compatibility_threshold = 0.8) %>% 
+  left_join(ied) %>% 
   group_by(group) %>% 
   fill(n) %>% 
   ungroup()
@@ -54,20 +44,21 @@ world <- map_data("world")
 
 f1 <- "Outfit"
 
-vis <- ggplot() +
+flows <- ggplot() +
   geom_polygon(data = world, aes(long, lat, group = group), fill = "grey90") +
-  # annotate("text", x = 16, y = 62, label = "SWEDEN", size = 5, family = f1, fontface = "bold") +
-  geom_path(data = fbundle %>% filter(n < 5000), aes(x, y, group = group, linewidth = n), alpha = 0.1) +
-  geom_path(data = fbundle %>% filter(n >= 5000), aes(x, y, group = group, linewidth = n, color = n), alpha = 0.3) +
-  geom_point(data = verts, aes(x, y, color = ifelse(n > 5000, n, NA), size = n)) +
-  # shadowtext::geom_shadowtext(data = full_data %>% filter(total < 1000), aes(o_longitude, o_latitude - 0.75, label = paste0(origen, "\n", total)), stat = "unique", check_overlap = TRUE, family = f1, vjust = 1, size = 2, color = "black", bg.color = "white", lineheight = 0.9) +
-  shadowtext::geom_shadowtext(data = full_data %>% filter(total > 1000), aes(o_longitude, if_else(o_latitude > 20, o_latitude + 5, o_latitude - 1), label = paste0(origen, "\n", scales::number(total))), stat = "unique", check_overlap = TRUE, family = f1, vjust = 1, size = 2, color = "black", bg.color = "white", lineheight = 0.9) +
+  annotate("text", x = -110, y = 12, label = "México", size = 5, family = f1, fontface = "bold") +
+  geom_path(data = fbundle %>% filter(n < 1000), aes(x, y, group = group, linewidth = n), alpha = 0.2) +
+  geom_path(data = fbundle %>% filter(n >= 1000), aes(x, y, group = group, linewidth = n, color = n), alpha = 0.8) +
+  geom_point(data = verts, aes(x, y, color = ifelse(n > 1000, n, NA), size = n)) +
+  # shadowtext::geom_shadowtext(data = data %>% filter(total < 1000), aes(longitude, if_else(latitude > 20, latitude + 6.5, latitude - 1), label = paste0(country, "\n", scales::dollar(total))), stat = "unique", check_overlap = TRUE, family = f1, vjust = 1, size = 1.5, color = "black", bg.color = "white", lineheight = 0.9) +
+  shadowtext::geom_shadowtext(data = data %>% filter(total >= 1000), aes(longitude, if_else(latitude > 20, latitude + 5, latitude - 1), label = paste0(country, "\n", scales::dollar(total))), stat = "unique", check_overlap = TRUE, family = f1, vjust = 1, size = 2, color = "black", bg.color = "white", lineheight = 0.9) +
   scale_color_stepsn(colors = MetBrewer::met.brewer("Tam"), na.value = "grey70") +
-  # scale_linewidth_continuous(range = c(0.2, 2)) +
+  scale_linewidth_continuous(range = c(0.2, 1.5)) +
   scale_size_continuous(range = c(0.5, 4)) +
+  coord_map(xlim = c(-160, 180), ylim = c(-50, 90)) +
   labs(
-    title = "Inversión extranjera directa en México, 2020-2023",
-    subtitle = "Del resto del mundo y por entidad federativa. Miles de dolares, precios corrientes",
+    title = "Flujos de inversión extranjera directa en México por país de origen",
+    subtitle = "Acumulado de 1999 a 2022 en millones de dólares. Los resaltados son países con un acumulado mayor de 1,000 millones de dólares",
     caption = "Fuente: Secretaria de Economía, 2023 · Elaborado por: Azael Mateo"
   ) +
   theme_minimal(base_family = f1) +
@@ -76,8 +67,24 @@ vis <- ggplot() +
     plot.background = element_rect(fill = "grey97", color = NA),
     axis.title = element_blank(),
     axis.text = element_blank(),
-    plot.title = element_text(size = 20, face = "bold", margin = margin(10, 0, 7, 0)),
-    plot.subtitle = element_text(size = 14, margin = margin(0, 0, 10, 0))
+    plot.title = element_text(size = 18, face = "bold", margin = margin(10, 0, 7, 0)),
+    plot.subtitle = element_text(size = 12, margin = margin(0, 0, 10, 0))
   )
 
-ggsave("AM202303_flujos_inversión.png", vis, width = 16, height = 10)
+destino <- read_csv("ied_destino.csv", locale = locale(encoding = "ISO-8859-1")) %>% 
+  select("Entidad Federativa" = entidad, "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022") %>% 
+  arrange(desc(`2022`)) %>% 
+  head(10) %>% 
+  gt() %>% 
+  tab_header(title = "Inversón extranjera directa por destino. Mayores 10 al 2022.",
+             subtitle = "Ancumulado anual en millones de dólares") %>% 
+  tab_source_note(source_note = "Fuente: Secretaria de Economía, 2023") %>% 
+  fmt_currency(columns = c("2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022"), currency = "USD") %>% 
+  # gtsave("gt_destino.png", vwidth = 1500, vheight = 1000) %>% 
+  tab_options(container.width = 1800) %>% 
+  bstfun::as_ggplot()
+
+vis <- patchwork::wrap_plots(flows, destino, heights = c(0.6,0.4), ncol = 1)
+
+ggsave("AM202303_flujos_ied.png", vis, width = 13, height = 12)
+  
